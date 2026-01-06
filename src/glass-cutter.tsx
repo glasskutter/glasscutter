@@ -211,13 +211,73 @@ export default function GlassCutter() {
     setActiveSheet(0);
   };
 
+  const generateSheetSVG = (sheet, sheetIdx) => {
+    const printScale = Math.min(500 / sw, 300 / sh);
+    const svgW = sw * printScale + 80;
+    const svgH = sh * printScale + 80;
+
+    let svg = `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="font-family:monospace">
+      <defs>
+        <marker id="arrS${sheetIdx}" markerWidth="6" markerHeight="6" refX="0" refY="3" orient="auto"><path d="M6,0 L6,6 L0,3 Z" fill="#000"/></marker>
+        <marker id="arrE${sheetIdx}" markerWidth="6" markerHeight="6" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 Z" fill="#000"/></marker>
+      </defs>
+      <rect x="40" y="40" width="${sw * printScale}" height="${sh * printScale}" fill="#f5f5f5" stroke="#000" stroke-width="1.5"/>
+      <line x1="40" y1="25" x2="40" y2="35" stroke="#000" stroke-width="0.5"/>
+      <line x1="${40 + sw * printScale}" y1="25" x2="${40 + sw * printScale}" y2="35" stroke="#000" stroke-width="0.5"/>
+      <line x1="40" y1="30" x2="${40 + sw * printScale}" y2="30" stroke="#000" stroke-width="0.5" marker-start="url(#arrS${sheetIdx})" marker-end="url(#arrE${sheetIdx})"/>
+      <text x="${40 + sw * printScale / 2}" y="18" text-anchor="middle" font-size="11" font-weight="600">${toFraction(sw)}"</text>
+      <line x1="25" y1="40" x2="35" y2="40" stroke="#000" stroke-width="0.5"/>
+      <line x1="25" y1="${40 + sh * printScale}" x2="35" y2="${40 + sh * printScale}" stroke="#000" stroke-width="0.5"/>
+      <line x1="30" y1="40" x2="30" y2="${40 + sh * printScale}" stroke="#000" stroke-width="0.5" marker-start="url(#arrS${sheetIdx})" marker-end="url(#arrE${sheetIdx})"/>
+      <text x="15" y="${40 + sh * printScale / 2}" text-anchor="middle" font-size="11" font-weight="600" transform="rotate(-90, 15, ${40 + sh * printScale / 2})">${toFraction(sh)}"</text>`;
+
+    sheet.placed?.forEach((p, i) => {
+      const x = 40 + p.x * printScale, y = 40 + p.y * printScale;
+      const w = p.pw * printScale, h = p.ph * printScale;
+      const pieceW = toFraction(p.rotated ? p.ph : p.pw), pieceH = toFraction(p.rotated ? p.pw : p.ph);
+      const circleR = Math.min(w, h) > 50 ? 12 : 8;
+      svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="#000" stroke-width="1"/>
+        <circle cx="${x + w/2}" cy="${y + h/2}" r="${circleR}" fill="#2563eb"/>
+        <text x="${x + w/2}" y="${y + h/2 + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">${i + 1}</text>`;
+      if (w > 50) svg += `<text x="${x + w/2}" y="${y + 14}" text-anchor="middle" font-size="8">${pieceW}"</text>`;
+      if (h > 50) svg += `<text x="${x + 12}" y="${y + h/2}" text-anchor="middle" font-size="8" transform="rotate(-90, ${x + 12}, ${y + h/2})">${pieceH}"</text>`;
+    });
+
+    svg += `<text x="${40 + sw * printScale - 5}" y="${40 + sh * printScale - 8}" text-anchor="end" font-size="9" fill="#666">DESPERDICIO: ${sheet.waste}%</text></svg>`;
+    return svg;
+  };
+
   const handlePrint = () => {
-    const svgEl = document.getElementById('cutting-diagram');
-    if (!svgEl) return;
-    const svgData = new XMLSerializer().serializeToString(svgEl);
+    if (sheets.length === 0) return;
     const win = window.open('', '_blank');
     if (!win) { alert('Permite ventanas emergentes para imprimir'); return; }
-    win.document.write(`<!DOCTYPE html><html><head><title>Corte - Lámina ${activeSheet + 1}</title><style>body{font-family:system-ui,sans-serif;padding:20px}h1{font-size:16px}p{font-size:12px;color:#666}table{width:100%;border-collapse:collapse;margin-top:20px;font-size:12px}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#f5f5f5}</style></head><body><h1>CORTE DE VIDRIO - Lámina ${activeSheet + 1}/${sheets.length}</h1><p>Tamaño: ${toFraction(sw)}" × ${toFraction(sh)}" | Uso: ${sheets[activeSheet]?.usage}% | Desperdicio: ${sheets[activeSheet]?.waste}%</p>${svgData}<table><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead><tbody>${sheets[activeSheet]?.placed?.map((p, i) => `<tr><td><strong>${i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table></body></html>`);
+
+    let html = `<!DOCTYPE html><html><head><title>Diseño de Corte de Vidrio</title>
+      <style>
+        body{font-family:system-ui,sans-serif;padding:20px}
+        .sheet{page-break-after:always;margin-bottom:30px}
+        .sheet:last-child{page-break-after:auto}
+        h1{font-size:16px;margin:0 0 5px 0}
+        .info{font-size:12px;color:#666;margin-bottom:15px}
+        table{width:100%;max-width:400px;border-collapse:collapse;margin-top:15px;font-size:11px}
+        th,td{border:1px solid #ddd;padding:6px 8px;text-align:left}
+        th{background:#f5f5f5}
+        @media print{.sheet{page-break-after:always}.sheet:last-child{page-break-after:auto}}
+      </style></head><body>`;
+
+    sheets.forEach((sheet, idx) => {
+      const svgContent = generateSheetSVG(sheet, idx);
+      html += `<div class="sheet">
+        <h1>DISEÑO DE CORTE DE VIDRIO - Lámina ${idx + 1} de ${sheets.length}</h1>
+        <p class="info">Tamaño: ${toFraction(sw)}" × ${toFraction(sh)}" | Uso: ${sheet.usage}% | Desperdicio: ${sheet.waste}%</p>
+        ${svgContent}
+        <table><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
+        <tbody>${sheet.placed?.map((p, i) => `<tr><td><strong>${i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>
+      </div>`;
+    });
+
+    html += '</body></html>';
+    win.document.write(html);
     win.document.close();
     setTimeout(() => win.print(), 250);
   };
