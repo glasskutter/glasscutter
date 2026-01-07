@@ -211,8 +211,8 @@ export default function GlassCutter() {
     setActiveSheet(0);
   };
 
-  const generateSheetSVG = (sheet, sheetIdx) => {
-    const printScale = Math.min(600 / sw, 350 / sh);
+  const generateSheetSVG = (sheet, sheetIdx, customScale = null) => {
+    const printScale = customScale || Math.min(600 / sw, 350 / sh);
     const svgW = sw * printScale + 80;
     const svgH = sh * printScale + 80;
 
@@ -254,52 +254,48 @@ export default function GlassCutter() {
 
     let html = `<!DOCTYPE html><html><head><title>Diseño de Corte de Vidrio</title>
       <style>
-        @page{size:landscape;margin:0.5in}
-        body{font-family:system-ui,sans-serif;padding:20px;margin:0}
-        .sheet{page-break-after:always;margin-bottom:30px}
+        @page{size:landscape;margin:0.4in}
+        body{font-family:system-ui,sans-serif;padding:15px;margin:0}
+        .sheet{page-break-after:always}
         .sheet:last-child{page-break-after:auto}
-        .header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;border-bottom:1px solid #000;padding-bottom:5px}
+        .header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;border-bottom:1px solid #000;padding-bottom:4px}
         h1{font-size:14px;margin:0;font-weight:bold}
         .info{font-size:10px;color:#333;margin:0}
-        .content{display:flex;gap:30px;align-items:flex-start}
-        .diagram{flex:1}
-        .cuts-table{width:200px;flex-shrink:0}
-        table{width:100%;border-collapse:collapse;font-size:10px}
-        th,td{border:1px solid #ddd;padding:4px 6px;text-align:left}
-        th{background:#f5f5f5}
-        @media print{
-          .sheet{page-break-after:always}
-          .sheet:last-child{page-break-after:auto}
-        }
+        .diagram{text-align:center;margin-bottom:10px}
+        .cuts-section{margin-top:10px}
+        .cuts-title{font-size:10px;font-weight:bold;margin-bottom:5px}
+        .cuts-grid{display:flex;gap:20px;flex-wrap:wrap}
+        .cuts-grid table{width:auto;border-collapse:collapse;font-size:9px}
+        .cuts-grid th,.cuts-grid td{border:1px solid #ddd;padding:2px 8px;text-align:left}
+        .cuts-grid th{background:#f5f5f5}
+        @media print{.sheet{page-break-after:always}.sheet:last-child{page-break-after:auto}}
       </style></head><body>`;
 
     sheets.forEach((sheet, idx) => {
-      const svgContent = generateSheetSVG(sheet, idx);
+      const printScale = Math.min(680 / sw, 320 / sh);
+      const svgContent = generateSheetSVG(sheet, idx, printScale);
       const pieces = sheet.placed || [];
-      const maxPerCol = 12;
+      const maxPerCol = 11;
       const numCols = Math.ceil(pieces.length / maxPerCol);
 
-      let tablesHtml = '<div style="display:flex;gap:15px;flex-wrap:wrap">';
+      let tablesHtml = '';
       for (let col = 0; col < numCols; col++) {
         const startIdx = col * maxPerCol;
         const endIdx = Math.min(startIdx + maxPerCol, pieces.length);
         const colPieces = pieces.slice(startIdx, endIdx);
-        tablesHtml += `<table style="width:auto"><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
-          <tbody>${colPieces.map((p, i) => `<tr><td><strong>${startIdx + i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>`;
+        tablesHtml += `<table><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
+          <tbody>${colPieces.map((p, i) => `<tr><td>${startIdx + i + 1}</td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>`;
       }
-      tablesHtml += '</div>';
 
       html += `<div class="sheet">
         <div class="header">
           <h1>DISEÑO DE CORTE DE VIDRIO</h1>
           <p class="info">Lámina ${idx + 1}/${sheets.length} | ${toFraction(sw)}" × ${toFraction(sh)}" | Uso: ${sheet.usage}% | Desperdicio: ${sheet.waste}%</p>
         </div>
-        <div class="content">
-          <div class="diagram">${svgContent}</div>
-          <div class="cuts-table">
-            <strong style="font-size:11px;display:block;margin-bottom:5px">LISTA DE CORTES:</strong>
-            ${tablesHtml}
-          </div>
+        <div class="diagram">${svgContent}</div>
+        <div class="cuts-section">
+          <div class="cuts-title">LISTA DE CORTES:</div>
+          <div class="cuts-grid">${tablesHtml}</div>
         </div>
       </div>`;
     });
