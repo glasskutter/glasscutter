@@ -275,6 +275,20 @@ export default function GlassCutter() {
 
     sheets.forEach((sheet, idx) => {
       const svgContent = generateSheetSVG(sheet, idx);
+      const pieces = sheet.placed || [];
+      const maxPerCol = 12;
+      const numCols = Math.ceil(pieces.length / maxPerCol);
+
+      let tablesHtml = '<div style="display:flex;gap:15px;flex-wrap:wrap">';
+      for (let col = 0; col < numCols; col++) {
+        const startIdx = col * maxPerCol;
+        const endIdx = Math.min(startIdx + maxPerCol, pieces.length);
+        const colPieces = pieces.slice(startIdx, endIdx);
+        tablesHtml += `<table style="width:auto"><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
+          <tbody>${colPieces.map((p, i) => `<tr><td><strong>${startIdx + i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>`;
+      }
+      tablesHtml += '</div>';
+
       html += `<div class="sheet">
         <div class="header">
           <h1>DISEÑO DE CORTE DE VIDRIO</h1>
@@ -284,8 +298,7 @@ export default function GlassCutter() {
           <div class="diagram">${svgContent}</div>
           <div class="cuts-table">
             <strong style="font-size:11px;display:block;margin-bottom:5px">LISTA DE CORTES:</strong>
-            <table><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
-            <tbody>${sheet.placed?.map((p, i) => `<tr><td><strong>${i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>
+            ${tablesHtml}
           </div>
         </div>
       </div>`;
@@ -363,19 +376,37 @@ export default function GlassCutter() {
         });
         
         const tableY = offsetY + sh * pdfScale + 25;
+        const availableHeight = pageH - tableY - margin;
+        const rowHeight = 11;
+        const maxRowsPerCol = Math.floor((availableHeight - 25) / rowHeight);
+        const colWidth = 130;
+        const pieces = sheet.placed || [];
+        const numCols = Math.ceil(pieces.length / maxRowsPerCol);
+
         pdf.setFontSize(10); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0);
         pdf.text('LISTA DE CORTES:', margin, tableY);
-        pdf.setFontSize(8);
-        const colX = [margin, margin + 30, margin + 100, margin + 170];
-        pdf.text('No.', colX[0], tableY + 15); pdf.text('ANCHO', colX[1], tableY + 15); pdf.text('ALTO', colX[2], tableY + 15);
-        pdf.setLineWidth(0.3); pdf.line(margin, tableY + 18, margin + 220, tableY + 18);
-        pdf.setFont('helvetica', 'normal');
-        sheet.placed?.forEach((p, i) => {
-          const rowY = tableY + 28 + i * 12;
-          pdf.text(`${i + 1}`, colX[0], rowY);
-          pdf.text(`${toFraction(p.rotated ? p.ph : p.pw)}"`, colX[1], rowY);
-          pdf.text(`${toFraction(p.rotated ? p.pw : p.ph)}"`, colX[2], rowY);
-        });
+
+        for (let col = 0; col < numCols; col++) {
+          const colStartX = margin + col * colWidth;
+          const startIdx = col * maxRowsPerCol;
+          const endIdx = Math.min(startIdx + maxRowsPerCol, pieces.length);
+
+          pdf.setFontSize(8); pdf.setFont('helvetica', 'bold');
+          pdf.text('No.', colStartX, tableY + 15);
+          pdf.text('ANCHO', colStartX + 25, tableY + 15);
+          pdf.text('ALTO', colStartX + 70, tableY + 15);
+          pdf.setLineWidth(0.3);
+          pdf.line(colStartX, tableY + 18, colStartX + 115, tableY + 18);
+
+          pdf.setFont('helvetica', 'normal');
+          for (let i = startIdx; i < endIdx; i++) {
+            const p = pieces[i];
+            const rowY = tableY + 28 + (i - startIdx) * rowHeight;
+            pdf.text(`${i + 1}`, colStartX, rowY);
+            pdf.text(`${toFraction(p.rotated ? p.ph : p.pw)}"`, colStartX + 25, rowY);
+            pdf.text(`${toFraction(p.rotated ? p.pw : p.ph)}"`, colStartX + 70, rowY);
+          }
+        }
       }
       pdf.save('diseno-corte-vidrio.pdf');
     } catch (err) { console.error('Error PDF:', err); }
