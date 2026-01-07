@@ -264,18 +264,19 @@ export default function GlassCutter() {
         .diagram{text-align:center;margin-bottom:10px}
         .cuts-section{margin-top:10px}
         .cuts-title{font-size:10px;font-weight:bold;margin-bottom:5px}
-        .cuts-grid{display:flex;gap:20px;flex-wrap:wrap}
-        .cuts-grid table{width:auto;border-collapse:collapse;font-size:9px}
-        .cuts-grid th,.cuts-grid td{border:1px solid #ddd;padding:2px 8px;text-align:left}
-        .cuts-grid th{background:#f5f5f5}
+        .cuts-grid{display:flex;gap:10px;flex-wrap:wrap}
+        .cuts-grid table{width:auto;border-collapse:collapse;font-size:8px}
+        .cuts-grid th,.cuts-grid td{border:1px solid #ddd;padding:1px 5px;text-align:left}
+        .cuts-grid th{background:#f5f5f5;font-size:7px}
         @media print{.sheet{page-break-after:always}.sheet:last-child{page-break-after:auto}}
       </style></head><body>`;
 
     sheets.forEach((sheet, idx) => {
-      const printScale = Math.min(900 / sw, 420 / sh);
+      const printScale = Math.min(850 / sw, 380 / sh);
       const svgContent = generateSheetSVG(sheet, idx, printScale);
       const pieces = sheet.placed || [];
-      const maxPerCol = 11;
+      // More rows per column = fewer columns = fits better horizontally
+      const maxPerCol = 15;
       const numCols = Math.ceil(pieces.length / maxPerCol);
 
       let tablesHtml = '';
