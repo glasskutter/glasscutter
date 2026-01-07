@@ -212,7 +212,7 @@ export default function GlassCutter() {
   };
 
   const generateSheetSVG = (sheet, sheetIdx) => {
-    const printScale = Math.min(500 / sw, 300 / sh);
+    const printScale = Math.min(600 / sw, 350 / sh);
     const svgW = sw * printScale + 80;
     const svgH = sh * printScale + 80;
 
@@ -254,25 +254,40 @@ export default function GlassCutter() {
 
     let html = `<!DOCTYPE html><html><head><title>Diseño de Corte de Vidrio</title>
       <style>
-        body{font-family:system-ui,sans-serif;padding:20px}
+        @page{size:landscape;margin:0.5in}
+        body{font-family:system-ui,sans-serif;padding:20px;margin:0}
         .sheet{page-break-after:always;margin-bottom:30px}
         .sheet:last-child{page-break-after:auto}
-        h1{font-size:16px;margin:0 0 5px 0}
-        .info{font-size:12px;color:#666;margin-bottom:15px}
-        table{width:100%;max-width:400px;border-collapse:collapse;margin-top:15px;font-size:11px}
-        th,td{border:1px solid #ddd;padding:6px 8px;text-align:left}
+        .header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;border-bottom:1px solid #000;padding-bottom:5px}
+        h1{font-size:14px;margin:0;font-weight:bold}
+        .info{font-size:10px;color:#333;margin:0}
+        .content{display:flex;gap:30px;align-items:flex-start}
+        .diagram{flex:1}
+        .cuts-table{width:200px;flex-shrink:0}
+        table{width:100%;border-collapse:collapse;font-size:10px}
+        th,td{border:1px solid #ddd;padding:4px 6px;text-align:left}
         th{background:#f5f5f5}
-        @media print{.sheet{page-break-after:always}.sheet:last-child{page-break-after:auto}}
+        @media print{
+          .sheet{page-break-after:always}
+          .sheet:last-child{page-break-after:auto}
+        }
       </style></head><body>`;
 
     sheets.forEach((sheet, idx) => {
       const svgContent = generateSheetSVG(sheet, idx);
       html += `<div class="sheet">
-        <h1>DISEÑO DE CORTE DE VIDRIO - Lámina ${idx + 1} de ${sheets.length}</h1>
-        <p class="info">Tamaño: ${toFraction(sw)}" × ${toFraction(sh)}" | Uso: ${sheet.usage}% | Desperdicio: ${sheet.waste}%</p>
-        ${svgContent}
-        <table><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
-        <tbody>${sheet.placed?.map((p, i) => `<tr><td><strong>${i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>
+        <div class="header">
+          <h1>DISEÑO DE CORTE DE VIDRIO</h1>
+          <p class="info">Lámina ${idx + 1}/${sheets.length} | ${toFraction(sw)}" × ${toFraction(sh)}" | Uso: ${sheet.usage}% | Desperdicio: ${sheet.waste}%</p>
+        </div>
+        <div class="content">
+          <div class="diagram">${svgContent}</div>
+          <div class="cuts-table">
+            <strong style="font-size:11px;display:block;margin-bottom:5px">LISTA DE CORTES:</strong>
+            <table><thead><tr><th>No.</th><th>Ancho</th><th>Alto</th></tr></thead>
+            <tbody>${sheet.placed?.map((p, i) => `<tr><td><strong>${i + 1}</strong></td><td>${toFraction(p.rotated ? p.ph : p.pw)}"</td><td>${toFraction(p.rotated ? p.pw : p.ph)}"</td></tr>`).join('')}</tbody></table>
+          </div>
+        </div>
       </div>`;
     });
 
