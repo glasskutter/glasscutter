@@ -418,30 +418,58 @@ export default function GlassCutter() {
           </div>
           
           {cuts.length > 0 ? (
-            <div style={{ borderRadius: theme.radius.lg, border: `1px solid ${theme.colors.border}`, overflow: 'hidden' }}>
-              <table className="w-full text-sm">
-                <thead style={{ backgroundColor: theme.colors.secondary }}>
-                  <tr>
-                    <th className="px-4 py-3 text-left font-semibold w-16" style={{ color: theme.colors.textMuted }}>No.</th>
-                    <th className="px-4 py-3 text-left font-semibold" style={{ color: theme.colors.textMuted }}>Ancho</th>
-                    <th className="px-4 py-3 text-left font-semibold" style={{ color: theme.colors.textMuted }}>Alto</th>
-                    <th className="px-4 py-3 text-left font-semibold w-24" style={{ color: theme.colors.textMuted }}>Cant.</th>
-                    <th className="px-4 py-3 w-12"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cuts.map((c, i) => (
-                    <tr key={i} style={{ borderTop: `1px solid ${theme.colors.border}` }}>
-                      <td className="px-4 py-3 font-semibold" style={{ color: theme.colors.primary }}>{i + 1}</td>
-                      <td className="px-4 py-3"><BentoInput value={c.w} onChange={e => updateCut(i, 'w', e.target.value)} placeholder="24 1/2" className="!py-2" /></td>
-                      <td className="px-4 py-3"><BentoInput value={c.h} onChange={e => updateCut(i, 'h', e.target.value)} placeholder="18 3/4" className="!py-2" /></td>
-                      <td className="px-4 py-3"><BentoInput type="number" min="1" value={c.qty} onChange={e => updateCut(i, 'qty', e.target.value)} className="!py-2" /></td>
-                      <td className="px-4 py-3"><BentoButton variant="ghost" size="icon" onClick={() => removeCut(i)}><X className="w-4 h-4" style={{ color: theme.colors.textMuted }} /></BentoButton></td>
+            <>
+              {/* Mobile: Card layout */}
+              <div className="md:hidden space-y-3">
+                {cuts.map((c, i) => (
+                  <div key={i} className="p-4" style={{ borderRadius: theme.radius.lg, border: `1px solid ${theme.colors.border}`, backgroundColor: theme.colors.surface }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-bold text-lg" style={{ color: theme.colors.primary }}>Pieza {i + 1}</span>
+                      <BentoButton variant="ghost" size="icon" onClick={() => removeCut(i)}><X className="w-4 h-4" style={{ color: theme.colors.textMuted }} /></BentoButton>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-xs font-medium mb-1 block" style={{ color: theme.colors.textMuted }}>Ancho</label>
+                        <BentoInput value={c.w} onChange={e => updateCut(i, 'w', e.target.value)} placeholder="24 1/2" className="!py-2 text-center" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium mb-1 block" style={{ color: theme.colors.textMuted }}>Alto</label>
+                        <BentoInput value={c.h} onChange={e => updateCut(i, 'h', e.target.value)} placeholder="18 3/4" className="!py-2 text-center" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium mb-1 block" style={{ color: theme.colors.textMuted }}>Cant.</label>
+                        <BentoInput type="number" min="1" value={c.qty} onChange={e => updateCut(i, 'qty', e.target.value)} className="!py-2 text-center" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop: Table layout */}
+              <div className="hidden md:block" style={{ borderRadius: theme.radius.lg, border: `1px solid ${theme.colors.border}`, overflow: 'hidden' }}>
+                <table className="w-full text-sm">
+                  <thead style={{ backgroundColor: theme.colors.secondary }}>
+                    <tr>
+                      <th className="px-4 py-3 text-left font-semibold w-16" style={{ color: theme.colors.textMuted }}>No.</th>
+                      <th className="px-4 py-3 text-left font-semibold" style={{ color: theme.colors.textMuted }}>Ancho</th>
+                      <th className="px-4 py-3 text-left font-semibold" style={{ color: theme.colors.textMuted }}>Alto</th>
+                      <th className="px-4 py-3 text-left font-semibold w-24" style={{ color: theme.colors.textMuted }}>Cant.</th>
+                      <th className="px-4 py-3 w-12"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {cuts.map((c, i) => (
+                      <tr key={i} style={{ borderTop: `1px solid ${theme.colors.border}` }}>
+                        <td className="px-4 py-3 font-semibold" style={{ color: theme.colors.primary }}>{i + 1}</td>
+                        <td className="px-4 py-3"><BentoInput value={c.w} onChange={e => updateCut(i, 'w', e.target.value)} placeholder="24 1/2" className="!py-2" /></td>
+                        <td className="px-4 py-3"><BentoInput value={c.h} onChange={e => updateCut(i, 'h', e.target.value)} placeholder="18 3/4" className="!py-2" /></td>
+                        <td className="px-4 py-3"><BentoInput type="number" min="1" value={c.qty} onChange={e => updateCut(i, 'qty', e.target.value)} className="!py-2" /></td>
+                        <td className="px-4 py-3"><BentoButton variant="ghost" size="icon" onClick={() => removeCut(i)}><X className="w-4 h-4" style={{ color: theme.colors.textMuted }} /></BentoButton></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           ) : (
             <div className="text-center py-12" style={{ color: theme.colors.textMuted }}>
               <Scissors className="w-12 h-12 mx-auto mb-3 opacity-40" />
