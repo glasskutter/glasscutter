@@ -272,7 +272,7 @@ export default function GlassCutter() {
       </style></head><body>`;
 
     sheets.forEach((sheet, idx) => {
-      const printScale = Math.min(680 / sw, 320 / sh);
+      const printScale = Math.min(900 / sw, 420 / sh);
       const svgContent = generateSheetSVG(sheet, idx, printScale);
       const pieces = sheet.placed || [];
       const maxPerCol = 11;
