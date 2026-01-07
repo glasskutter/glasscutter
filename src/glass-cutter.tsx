@@ -495,7 +495,7 @@ export default function GlassCutter() {
                       <th className="px-4 py-3 text-left font-semibold w-16" style={{ color: theme.colors.textMuted }}>No.</th>
                       <th className="px-4 py-3 text-left font-semibold" style={{ color: theme.colors.textMuted }}>Ancho</th>
                       <th className="px-4 py-3 text-left font-semibold" style={{ color: theme.colors.textMuted }}>Alto</th>
-                      <th className="px-4 py-3 text-left font-semibold w-24" style={{ color: theme.colors.textMuted }}>Cant.</th>
+                      <th className="px-4 py-3 text-left font-semibold w-28" style={{ color: theme.colors.textMuted }}>Cant.</th>
                       <th className="px-4 py-3 w-12"></th>
                     </tr>
                   </thead>
@@ -505,7 +505,7 @@ export default function GlassCutter() {
                         <td className="px-4 py-3 font-semibold" style={{ color: theme.colors.primary }}>{i + 1}</td>
                         <td className="px-4 py-3"><BentoInput value={c.w} onChange={e => updateCut(i, 'w', e.target.value)} placeholder="24 1/2" className="!py-2" /></td>
                         <td className="px-4 py-3"><BentoInput value={c.h} onChange={e => updateCut(i, 'h', e.target.value)} placeholder="18 3/4" className="!py-2" /></td>
-                        <td className="px-4 py-3"><BentoInput type="number" min="1" value={c.qty} onChange={e => updateCut(i, 'qty', e.target.value)} className="!py-2" /></td>
+                        <td className="px-4 py-3"><BentoInput type="number" min="1" value={c.qty} onChange={e => updateCut(i, 'qty', e.target.value)} className="!py-2 !w-20" /></td>
                         <td className="px-4 py-3"><BentoButton variant="ghost" size="icon" onClick={() => removeCut(i)}><X className="w-4 h-4" style={{ color: theme.colors.textMuted }} /></BentoButton></td>
                       </tr>
                     ))}
