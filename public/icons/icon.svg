@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#2563eb"/>
+  <g fill="none" stroke="#fff" stroke-width="8">
+    <!-- Main glass sheet -->
+    <rect x="80" y="80" width="352" height="352" rx="8"/>
+    <!-- Cut lines -->
+    <line x1="80" y1="200" x2="432" y2="200"/>
+    <line x1="80" y1="312" x2="432" y2="312"/>
+    <line x1="220" y1="80" x2="220" y2="432"/>
+    <line x1="340" y1="80" x2="340" y2="432"/>
+  </g>
+  <!-- Piece numbers -->
+  <circle cx="150" cy="140" r="24" fill="#fff"/>
+  <text x="150" y="148" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#2563eb">1</text>
+  <circle cx="280" cy="140" r="24" fill="#fff"/>
+  <text x="280" y="148" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#2563eb">2</text>
+  <circle cx="386" cy="140" r="24" fill="#fff"/>
+  <text x="386" y="148" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#2563eb">3</text>
+  <circle cx="150" cy="256" r="24" fill="#fff"/>
+  <text x="150" y="264" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#2563eb">4</text>
+  <circle cx="280" cy="256" r="24" fill="#fff"/>
+  <text x="280" y="264" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#2563eb">5</text>
+  <circle cx="386" cy="256" r="24" fill="#fff"/>
+  <text x="386" y="264" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#2563eb">6</text>
+</svg>

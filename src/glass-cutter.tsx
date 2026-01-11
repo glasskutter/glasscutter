@@ -334,11 +334,43 @@ export default function GlassCutter() {
         pdf.setFontSize(14); pdf.setFont('helvetica', 'bold');
         pdf.text('DISEÑO DE CORTE DE VIDRIO', margin, margin - 10);
         pdf.setFontSize(10); pdf.setFont('helvetica', 'normal');
-        pdf.text(`Lámina ${sheetIdx + 1}/${sheets.length} | ${toFraction(sw)}" x ${toFraction(sh)}" | Uso: ${sheet.usage}% | Desperdicio: ${sheet.waste}%`, pageW - margin, margin - 10, { align: 'right' });
-        
-        const diagramW = pageW - margin * 2 - 60, diagramH = pageH - 200;
+        pdf.text(`Lámina ${sheetIdx + 1}/${sheets.length} | ${toFraction(sw)}" x ${toFraction(sh)}"`, pageW - margin, margin - 10, { align: 'right' });
+
+        // Statistics section
+        const statsY = margin + 10;
+        const statsHeight = 35;
+        const statsWidth = 280;
+
+        // Usage bar background
+        pdf.setFillColor(240, 240, 240);
+        pdf.rect(margin, statsY, statsWidth - 80, statsHeight, 'F');
+
+        // Usage bar background track
+        pdf.setFillColor(220, 220, 220);
+        pdf.rect(margin + 10, statsY + 20, statsWidth - 100, 8, 'F');
+
+        // Usage bar fill
+        const usageBarWidth = (statsWidth - 100) * (parseFloat(sheet.usage) / 100);
+        pdf.setFillColor(34, 197, 94);
+        pdf.rect(margin + 10, statsY + 20, usageBarWidth, 8, 'F');
+
+        // Usage text
+        pdf.setFontSize(9); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(100, 100, 100);
+        pdf.text('Uso del Material', margin + 10, statsY + 12);
+        pdf.setFontSize(10); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0, 0, 0);
+        pdf.text(`${sheet.usage}%`, margin + statsWidth - 95, statsY + 12);
+
+        // Waste section
+        pdf.setFillColor(240, 240, 240);
+        pdf.rect(margin + statsWidth - 70, statsY, 70, statsHeight, 'F');
+        pdf.setFontSize(8); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(100, 100, 100);
+        pdf.text('Desperdicio', margin + statsWidth - 60, statsY + 12);
+        pdf.setFontSize(16); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(0, 0, 0);
+        pdf.text(`${sheet.waste}%`, margin + statsWidth - 60, statsY + 28);
+
+        const diagramW = pageW - margin * 2 - 60, diagramH = pageH - 235;
         const pdfScale = Math.min(diagramW / sw, diagramH / sh);
-        const offsetX = margin + 40, offsetY = margin + 20;
+        const offsetX = margin + 40, offsetY = margin + 60;
         
         pdf.setLineWidth(0.3);
         pdf.line(offsetX, offsetY - 5, offsetX, offsetY - 15);
